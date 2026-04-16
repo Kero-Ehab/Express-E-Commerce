@@ -2,7 +2,7 @@
 const CategoryModel = require('../models/categoryModel')
 const slugify = require('slugify')
 const asyncHandler = require('express-async-handler')
-
+const ApiError = require('../utils/apiError')
 
 
 
@@ -14,10 +14,11 @@ exports.getCategories = asyncHandler(async(req, res) =>{
     res.status(200).json({result: categories.length, page, data: categories})
 })
 
-exports.getCategory = asyncHandler(async(req, res) =>{
+exports.getCategory = asyncHandler(async(req, res, next) =>{
     const category = await CategoryModel.findById(req.params.id)    
     if(!category){
-        res.status(404).json({msg: 'No category for this id'})
+        //res.status(404).json({msg: 'No category for this id'})
+        return next(new ApiError(`No category for this ${req.params.id}`, 404))
     }
     res.status(200).json({data: category})
 })
@@ -29,21 +30,23 @@ exports.createCategory = asyncHandler(async (req, res) =>{
         res.status(201).json({data: category})
 })
     
-exports.updateCategory = asyncHandler(async(req, res) =>{
+exports.updateCategory = asyncHandler(async(req, res, next) =>{
     const {id} = req.params;
     const {name} = req.body;
     const category = await CategoryModel.findOneAndUpdate({_id: id}, {name, slug: slugify(name)}, {new: true})
     if(!category){
-        res.status(404).json({msg: 'No category for this id'})
+        //res.status(404).json({msg: 'No category for this id'})
+        return next(new ApiError(`No category for this ${id}`, 404))
     }
     res.status(200).json({data: category})
 })
 
-exports.deleteCategory = asyncHandler(async(req, res) =>{
+exports.deleteCategory = asyncHandler(async(req, res, next) =>{
     const {id} = req.params;
     const category = await CategoryModel.findByIdAndDelete(id)
     if(!category){
-        res.status(404).json({msg: 'No category for this id'})
+        // res.status(404).json({msg: 'No category for this id'})
+        return next(new ApiError(`No category for this ${id}`, 404))
     }
     res.status(200).json({msg: 'Category deleted successfully'})
 })

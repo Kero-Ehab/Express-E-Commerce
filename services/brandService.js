@@ -23,14 +23,14 @@ exports.getBrand = asyncHandler(async(req, res, next) =>{
     res.status(200).json({data: brand})
 })
 
-exports.createBrand = asyncHandler(async (req, res) =>{
+exports.createBrands = asyncHandler(async (req, res) =>{
     const name = req.body.name;
     
         const brand = await brandModel.create({name, slug: slugify(name)})
         res.status(201).json({data: brand})
 })
     
-exports.updateBrand = asyncHandler(async(req, res, next) =>{
+exports.updateBrands = asyncHandler(async(req, res, next) =>{
     const {id} = req.params;
     const {name} = req.body;
     const brand = await brandModel.findOneAndUpdate({_id: id}, {name, slug: slugify(name)}, {new: true})
@@ -45,8 +45,8 @@ exports.deleteBrand = asyncHandler(async(req, res, next) =>{
     const {id} = req.params;
     const brand = await brandModel.findByIdAndDelete(id)
     if(!brand){
-        // res.status(404).json({msg: 'No category for this id'})
-        return next(new ApiError(`No category for this ${id}`, 404))
+        // res.status(404).json({msg: 'No Brand for this id'})
+        return next(new ApiError(`No Brand for this ${id}`, 404))
     }
-    res.status(200).json({msg: 'Category deleted successfully'})
+    res.status(200).json({msg: 'Brand deleted successfully'})
 })

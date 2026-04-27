@@ -6,16 +6,16 @@ const {getbrandValidator,
 } =  require('../utils/validator/brandValidator')
 const { getBrands,
         getBrand,
-        createBrand,
-        updateBrand,
+        createBrands,
+        updateBrands,
         deleteBrand
      } = require('../services/brandService')
 const router = express.Router()
 
-router.route('/').get(getBrands).post(createBrandValidator,createBrand)
+router.route('/').get(getBrands).post(createBrandValidator,createBrands)
 router.route('/:id')
 .get(getbrandValidator,getBrand)
-.put(updateBrandValidator,updateBrand)
+.put(updateBrandValidator,updateBrands)
 .delete(deleteBrandValidator,deleteBrand)
 
 module.exports = router

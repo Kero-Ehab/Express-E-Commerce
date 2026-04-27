@@ -6,6 +6,7 @@ const dbConnection = require('./config/database');
 const categoryRoute = require('./routes/categoryRoute');
 const subCategoryRoute = require('./routes/subCategoryRoute');
 const brandRoute = require('./routes/brandRoute');
+const productRoute = require('./routes/productRoute');
 const ApiError = require('./utils/apiError')
 const globalError = require('./middlewares/errorMiddleware')
 
@@ -28,6 +29,7 @@ if(process.env.NODE_ENV === 'development'){
 app.use('/api/v1/categories', categoryRoute)
 app.use('/api/v1/subcategories', subCategoryRoute)
 app.use('/api/v1/brands', brandRoute)
+app.use('/api/v1/products', productRoute)
 
 // // Global error handling middleware
 // app.use((err, req, res, next) =>{

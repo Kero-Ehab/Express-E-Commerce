@@ -1,6 +1,8 @@
 const {check} = require('express-validator')
-const validatorMiddleware = require('../../middlewares/validatorMiddleware')
-
+const validatorMiddleware = require('../../middlewares/validatorMiddleware');
+const CategoryModel = require('../../models/categoryModel');
+const SubCategoryModel = require('../../models/subCategoryModel');
+const subCategoryModel = require('../../models/subCategoryModel');
 
 
 exports.createProductValidator = [
@@ -18,8 +20,29 @@ exports.createProductValidator = [
     }),
     check('colors').optional().isArray().withMessage('colors must be an array'),
     check('imageColor').optional().isArray().withMessage('imageColor must be an array'),
-    check('category').notEmpty().withMessage('Product must be belong to a category').isMongoId().withMessage('Invalid id format'),
-    check('subCategory').optional().isMongoId().withMessage('Invalid id format'),
+    check('category').notEmpty().withMessage('Product must be belong to a category').isMongoId().withMessage('Invalid id format')
+    .custom(async(categoryId) =>{
+        const category = await CategoryModel.findById(categoryId)
+        if(!category){
+            //throw new Error("Category not found")
+            return Promise.reject(new Error(`There is n.o category for this id ${categoryId}`));
+        }
+        return true;
+    }),
+    check('subCategories').optional().isArray().withMessage('Invalid id format')
+    .custom((subCategoriesIds)=>{
+        return subCategoryModel.find({_id:{$in:subCategoriesIds}}).then(
+            (result)=>{
+                if(result.length <1 || result.length !== subCategoriesIds.length ){
+                    //throw new Error("Invalid sub categories")
+                    return Promise.reject(new Error(`There is n.o sub category for this id ${subCategoriesIds}`));
+                }
+                return true;
+                // console.log(result.length)
+                // console.log(subCategoriesIds.length)
+            }
+        )
+    }),
     check('brand').optional().isMongoId().withMessage('Invalid id format'),
     check('rateingsAverage')
     .optional()

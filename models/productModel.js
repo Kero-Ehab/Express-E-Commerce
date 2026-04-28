@@ -34,9 +34,9 @@ const productSchema = new mongoose.Schema({
     price:{
         type: Number,
         required:[true, 'Product price is required'],
-        trim:true,
-        max:[20, 'Too long Product price'],
-
+        //trim:true,
+        //max:[20, 'Too long Product price'],
+        max:100000000,
         
     },
     priceAfterDiscount:{
@@ -44,7 +44,7 @@ const productSchema = new mongoose.Schema({
     },
     colors:{
         type: [String],
-        enum: ['Red', 'Green', 'Blue', 'Black', 'White', 'Gray', 'Yellow', 'Orange', 'Purple', 'Pink', 'Brown', 'Gray', 'Silver', 'Gold', 'Bronze', 'Copper', 'Teal', 'Cyan', 'Magenta', 'Lime', 'Maroon', 'Navy', 'Olive', 'Purple', 'Silver', 'Teal'],
+        //enum: ['Red', 'Green', 'Blue', 'Black', 'White', 'Gray', 'Yellow', 'Orange', 'Purple', 'Pink', 'Brown', 'Gray', 'Silver', 'Gold', 'Bronze', 'Copper', 'Teal', 'Cyan', 'Magenta', 'Lime', 'Maroon', 'Navy', 'Olive', 'Purple', 'Silver', 'Teal'],
     },
     imageColor:{
         type: [String],
@@ -58,7 +58,7 @@ const productSchema = new mongoose.Schema({
         ref:'Category',
         required:[true, 'Product must belong to a category']
     },
-    subCategory:[{
+    subCategories:[{
         type : mongoose.Schema.Types.ObjectId,
         ref: 'SubCategory',
         //required:[true, 'Product must belong to a sub category'],

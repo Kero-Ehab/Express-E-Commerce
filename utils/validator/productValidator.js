@@ -42,7 +42,19 @@ exports.createProductValidator = [
                 // console.log(subCategoriesIds.length)
             }
         )
-    }),
+    }).custom((val, {req}) => SubCategoryModel.find({
+        category: req.body.category}).then((subCategories)=>{
+            const subCategoriesIdsInDB = [];
+            subCategories.forEach((subCategory)=>{
+                subCategoriesIdsInDB.push(subCategory._id.toString());
+            })
+            const checker = (target, arr) => target.every((v) => arr.includes(v));
+            if(!checker){
+                return Promise.reject(new Error(`There is n.o sub category for this id ${subCategoriesIds}`));
+            }
+            return true;
+        }) 
+    ),
     check('brand').optional().isMongoId().withMessage('Invalid id format'),
     check('rateingsAverage')
     .optional()

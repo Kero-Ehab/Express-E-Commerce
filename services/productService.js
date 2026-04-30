@@ -70,15 +70,26 @@ exports.getProducts = asyncHandler(async (req, res) => {
                 : Number(queryStringObj[key]);
         }
     }
+
     const page = req.query.page * 1 || 1;
     const limit = req.query.limit * 1 || 100;
     const skip = (page - 1) * limit;
 
-    const products = await ProductModel
+
+    let mongooseQuery = ProductModel
         .find(mongoQuery)
         .skip(skip)
         .limit(limit)
         .populate({ path: 'category', select: 'name' });
+
+    if(req.query.sort){
+        const sortBy = req.query.sort.split(',').join(' ');
+        mongooseQuery = mongooseQuery.sort(sortBy);
+    }else{
+        mongooseQuery = mongooseQuery.sort('-createdAt');
+    }
+
+    const products = await mongooseQuery;
 
     res.status(200).json({
         result: products.length,

@@ -5,15 +5,89 @@ const asyncHandler = require('express-async-handler')
 const ApiError = require('../utils/apiError')
 const CategoryModel = require('../models/categoryModel')
 
-
+/*
 
 exports.getProducts = asyncHandler(async(req, res) =>{
+
+    console.log(req.query)
+    
+    const queryStringObj = {...req.query};
+    const excludesFields = ['page', 'sort', 'limit', 'fields'];
+    for (let i = 0; i < excludesFields.length; i++) {
+        delete queryStringObj[excludesFields[i]];
+    }
+
+    // let queryStr = JSON.stringify(queryStringObj);
+    // queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) =>`$${match}`)
+    // // convert numeric strings to numbers inside JSON string
+    // queryStr = queryStr.replace(/"(\d+)"/g, (match, p1) => {
+    //     return Number(p1);
+    // });
+
+    console.log(queryStr)    
+    console.log(queryStringObj)
+    console.log(JSON.parse(queryStr))
+
     const page = req.query.page * 1 || 1 ; 
     const limit = req.query.limit * 1 || 5;
     const skip = (page-1)*limit 
-    const products = await ProductModel.find({}).skip(skip).limit(limit).populate({path:'category',select:'name'})    
+
+    const mongooseQuery =  ProductModel
+    .find(queryStringObj)
+    .skip(skip).limit(limit)
+    .populate({path:'category',select:'name'})
+    
+
+    const products = await mongooseQuery      
     res.status(200).json({result: products.length, page, data: products})
 })
+
+*/
+
+exports.getProducts = asyncHandler(async (req, res) => {
+
+    const queryStringObj = { ...req.query };
+    const excludesFields = ['page', 'sort', 'limit', 'fields'];
+    for (let i = 0; i < excludesFields.length; i++) {
+        delete queryStringObj[excludesFields[i]];
+    }
+    const mongoQuery = {};
+
+    for (let key in queryStringObj) {
+
+        if (key.includes('[')) {
+
+            const field = key.split('[')[0];
+            const operator = key.match(/\[(.*)\]/)[1];
+
+            if (!mongoQuery[field]) mongoQuery[field] = {};
+
+            mongoQuery[field]['$' + operator] = Number(queryStringObj[key]);
+
+        } else {
+            mongoQuery[key] = isNaN(queryStringObj[key])
+                ? queryStringObj[key]
+                : Number(queryStringObj[key]);
+        }
+    }
+    const page = req.query.page * 1 || 1;
+    const limit = req.query.limit * 1 || 100;
+    const skip = (page - 1) * limit;
+
+    const products = await ProductModel
+        .find(mongoQuery)
+        .skip(skip)
+        .limit(limit)
+        .populate({ path: 'category', select: 'name' });
+
+    res.status(200).json({
+        result: products.length,
+        page,
+        data: products
+    });
+});
+
+
 
 exports.getProduct = asyncHandler(async(req, res, next) =>{
     const product = await ProductModel.findById(req.params.id).populate({path:'category',select:'name'})    

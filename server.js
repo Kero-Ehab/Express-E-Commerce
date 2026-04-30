@@ -48,15 +48,10 @@ app.use((req, res, next) =>{
 
 app.use(globalError)
 
-
-
 const PORT = process.env.PORT || 8000
 const server = app.listen( PORT, () =>{
     console.log(`Server is running on port ${PORT}`);
 })
-
-
-
 
 process.on('unhandledRejection', (err) =>{
     console.log(`UnhandledRejection Error: ${err.name} | ${err.message}`)

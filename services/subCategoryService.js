@@ -4,6 +4,7 @@ const ApiError = require('../utils/apiError')
 
 const SubCategoryModel = require('../models/subCategoryModel');
 
+
  exports.setCategoryIdToBody = (req, res, next)=>{
     if(!req.body.category){
         req.body.category = req.params.categoryId;
@@ -13,7 +14,7 @@ const SubCategoryModel = require('../models/subCategoryModel');
 
 exports. createSubCategory = asyncHandler(async(req, res) =>{
         const {name,category} = req.body;
-    const subCategory = await SubCategoryModel.create({
+        const subCategory = await SubCategoryModel.create({
         name,
         slug: slugify(name),
         category: category,

@@ -4,6 +4,7 @@ const slugify = require('slugify')
 const asyncHandler = require('express-async-handler')
 const ApiError = require('../utils/apiError')
 const CategoryModel = require('../models/categoryModel')
+const ApiFeatures = require('../utils/apiFeatures')
 
 /*
 
@@ -46,81 +47,20 @@ exports.getProducts = asyncHandler(async(req, res) =>{
 
 exports.getProducts = asyncHandler(async (req, res) => {
 
-    //copy query object
-    const queryStringObj = { ...req.query };
-    const excludesFields = ['page', 'sort', 'limit', 'fields'];
-    for (let i = 0; i < excludesFields.length; i++) {
-        delete queryStringObj[excludesFields[i]];
-    }
-
-    //filtering
-    const mongoQuery = {};
-    for (let key in queryStringObj) {
-
-        if (key.includes('[')) {
-
-            const field = key.split('[')[0];
-            const operator = key.match(/\[(.*)\]/)[1];
-
-            if (!mongoQuery[field]) mongoQuery[field] = {};
-
-            mongoQuery[field]['$' + operator] = Number(queryStringObj[key]);
-
-        } else {
-            mongoQuery[key] = isNaN(queryStringObj[key])
-                ? queryStringObj[key]
-                : Number(queryStringObj[key]);
-        }
-    }
-
-    //pagination
-    const page = req.query.page * 1 || 1;
-    const limit = req.query.limit * 1 || 100;
-    const skip = (page - 1) * limit;
-
+   
     //building query
-    let mongooseQuery = ProductModel
-        .find(mongoQuery)
-        .skip(skip)
-        .limit(limit)
-        .populate({ path: 'category', select: 'name' });
+    const apiFeatures = new ApiFeatures(ProductModel.find(), req.query)
+    .pagination()
+    .filter()
+    .search()
+    .limitFields()
+    .sort()
 
-    //sort    
-    if(req.query.sort){
-        const sortBy = req.query.sort.split(',').join(' ');
-        mongooseQuery = mongooseQuery.sort(sortBy);
-    }else{
-        mongooseQuery = mongooseQuery.sort('-createdAt');
-    }
-
-    //fields limitations
-    if(req.query.fields){
-        const fields = req.query.fields.split(',').join(' ');
-        mongooseQuery = mongooseQuery.select(fields);
-    }else{
-        mongooseQuery = mongooseQuery.select('-__v');
-    }
-
-
-    //search
-    if(req.query.keyword){
-        const query = {};
-        query.$or = [
-            {
-                title: {$regex: req.query.keyword, $options: 'i'}
-            },
-            {
-                description: {$regex: req.query.keyword, $options: 'i'}
-            }
-        ]
-        mongooseQuery = mongooseQuery.find(query);
-    }
-
-    const products = await mongooseQuery;
+    const products = await apiFeatures.mongooseQuery;
 
     res.status(200).json({
         result: products.length,
-        page,
+        //page: apiFeatures.page,
         data: products
     });
 });
@@ -164,3 +104,16 @@ exports.deleteProduct = asyncHandler(async(req, res, next) =>{
     }
     res.status(200).json({msg: 'product deleted successfully'})
 })
+
+
+
+
+
+
+
+
+
+
+
+
+

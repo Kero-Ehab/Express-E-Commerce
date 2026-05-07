@@ -101,6 +101,21 @@ exports.getProducts = asyncHandler(async (req, res) => {
         mongooseQuery = mongooseQuery.select('-__v');
     }
 
+
+    //search
+    if(req.query.keyword){
+        const query = {};
+        query.$or = [
+            {
+                title: {$regex: req.query.keyword, $options: 'i'}
+            },
+            {
+                description: {$regex: req.query.keyword, $options: 'i'}
+            }
+        ]
+        mongooseQuery = mongooseQuery.find(query);
+    }
+
     const products = await mongooseQuery;
 
     res.status(200).json({

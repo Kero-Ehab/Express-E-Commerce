@@ -7,7 +7,11 @@ const slugify = require('slugify');
 
 
 exports.createProductValidator = [
-    check('title').isLength({min:3}).notEmpty().withMessage('must be at least 3 chars').withMessage('Title is required'),
+    check('title').isLength({min:3}).notEmpty().withMessage('must be at least 3 chars').withMessage('Title is required')
+    .custom((val, {req}) =>{
+            req.body.slug = slugify(val);
+            return true;
+        }),
     check('description').notEmpty().isLength({max: 2000}).withMessage('must be at most 2000 chars').withMessage('Description is required'),
     check('price').notEmpty().withMessage('price is required').isNumeric().withMessage('price must be a number').isLength({max:32}).withMessage('Too Long price'),
     check('quantity').notEmpty().withMessage('quntity is required').isNumeric().withMessage('product quantity must be a number'),

@@ -9,11 +9,15 @@ exports.getbrandValidator = [
 ]
 
 exports.createBrandValidator = [
-    check("name").notEmpty().withMessage("Brand name is required")
+    check("name").notEmpty().withMessage("Brand name is required").custom((val, {req}) =>{
+        req.body.slug = slugify(val);
+        return true;
+    })
     .isLength({min: 3}).withMessage("Brand name must be at least 3 characters long")
     .isLength({max: 32}).withMessage("Brand name must be at most 32 characters long")
     .isAlpha().withMessage("Brand name must be alphabetic")
     ,
+    
     validatorMiddleware
 ]
 

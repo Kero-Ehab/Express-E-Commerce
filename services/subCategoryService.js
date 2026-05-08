@@ -14,15 +14,6 @@ const factory = require('./handlersFactory')
     next();
 }
 
-exports. createSubCategory = asyncHandler(async(req, res) =>{
-        const {name,category} = req.body;
-        const subCategory = await SubCategoryModel.create({
-        name,
-        slug: slugify(name),
-        category: category,
-    })
-    res.status(201).json({data: subCategory})
-})
 
 exports.createFilterObject = (req, res, next)=>{
     let filterObject ={};
@@ -32,6 +23,7 @@ exports.createFilterObject = (req, res, next)=>{
     req.filterObject = filterObject
     next();
 }
+
 
 exports.getSubCategories = asyncHandler(async(req, res) =>{
    //building query
@@ -58,7 +50,9 @@ exports.getSubCategory = asyncHandler(async(req, res, next) =>{
     res.status(200).json({data: subCategory})
 })
 
-exports.updateSubCategory = factory.updateOne(SubCategoryModel)
+exports. createSubCategory = factory.createOne(SubCategoryModel);
+
+exports.updateSubCategory = factory.updateOne(SubCategoryModel);
 
 exports.deleteSubCategory = factory.deleteOne(SubCategoryModel);
 

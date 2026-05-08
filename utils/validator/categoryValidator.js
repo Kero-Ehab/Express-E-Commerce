@@ -9,11 +9,13 @@ exports.getCategoryValidator = [
 ]
 
 exports.createCategoryValidator = [
-    check("name").notEmpty().withMessage("Category name is required")
+    check("name").notEmpty().withMessage("Category name is required").custom((val , {req})=>{
+        req.body.slug = slugify(val);
+        return true;
+    })
     .isLength({min: 3}).withMessage("Category name must be at least 3 characters long")
     .isLength({max: 32}).withMessage("Category name must be at most 32 characters long")
-    .isAlpha().withMessage("Category name must be alphabetic")
-    ,
+    .isAlpha().withMessage("Category name must be alphabetic"),
     validatorMiddleware
 ]
 

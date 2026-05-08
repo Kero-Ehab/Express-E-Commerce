@@ -9,7 +9,10 @@ exports.getsubCategoryValidator = [
 ]
 
 exports.createSubCategoryValidator = [
-    check("name").notEmpty().withMessage("SubCategory name is required")
+    check("name").notEmpty().withMessage("SubCategory name is required").custom((val, {req}) =>{
+        req.body.slug = slugify(val);
+        return true;
+    })
     .isLength({min: 2}).withMessage("SubCategory name must be at least 2 characters long")
     .isLength({max: 32}).withMessage("SubCategory name must be at most 32 characters long"),
     check('category')
@@ -17,6 +20,7 @@ exports.createSubCategoryValidator = [
     .withMessage('SubCategory required')
     .isMongoId()
     .withMessage('invalid category id'),
+   
     validatorMiddleware
 ]
 

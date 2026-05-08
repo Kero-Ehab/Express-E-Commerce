@@ -1,8 +1,10 @@
 const slugify = require('slugify')
 const asyncHandler = require('express-async-handler')
 const ApiError = require('../utils/apiError')
-
 const SubCategoryModel = require('../models/subCategoryModel');
+const ApiFeatures = require('../utils/apiFeatures');
+const factory = require('./handlersFactory')
+
 
 
  exports.setCategoryIdToBody = (req, res, next)=>{
@@ -30,15 +32,21 @@ exports.createFilterObject = (req, res, next)=>{
     req.filterObject = filterObject
     next();
 }
-exports.getSubCategories = asyncHandler(async(req, res) =>{
-    const page = req.query.page * 1 || 1 ; 
-    const limit = req.query.limit * 1 || 5;
-    const skip = (page-1)*limit 
-    
-    const subCategories = await SubCategoryModel.find(req.filterObject).skip(skip).limit(limit).populate({path: 'category', select: 'name'})
-    res.status(200).json({result: subCategories.length, page, data: subCategories})
-})
 
+exports.getSubCategories = asyncHandler(async(req, res) =>{
+   //building query
+    const documentsCount = await SubCategoryModel.countDocuments();
+    const apiFeatures = new ApiFeatures(SubCategoryModel.find(), req.query)
+    .filter()
+    .search('Categories')
+    .limitFields()
+    .sort()
+    .pagination(documentsCount)
+      
+    const {mongooseQuery, paginateResult} = apiFeatures
+    const subCategories = await mongooseQuery
+    res.status(200).json({result: subCategories.length, paginateResult, data: subCategories})
+})
 
 exports.getSubCategory = asyncHandler(async(req, res, next) =>{
     const {id} = req.params;
@@ -49,8 +57,6 @@ exports.getSubCategory = asyncHandler(async(req, res, next) =>{
     }
     res.status(200).json({data: subCategory})
 })
-
-
 
 exports.updateSubCategory = asyncHandler(async(req, res, next) =>{
     const {id} = req.params;
@@ -63,12 +69,5 @@ exports.updateSubCategory = asyncHandler(async(req, res, next) =>{
     res.status(200).json({data: subCategory})
 })
 
-exports.deleteSubCategory = asyncHandler(async(req, res, next) =>{
-    const {id} = req.params;
-    const subCategory = await SubCategoryModel.findOneAndDelete({_id: id})
-    if(!subCategory){
-        //res.status(404).json({msg: 'No category for this id'})
-        return next(new ApiError(`No category for this ${id}`, 404))
-    }
-    res.status(200).json({data: subCategory})
-})
+exports.deleteSubCategory = factory.deleteOne(SubCategoryModel);
+

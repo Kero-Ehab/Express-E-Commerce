@@ -94,7 +94,6 @@ class ApiFeatures {
         this.paginateResult = pagination;
         return this;
     }
-
 }
 
 module.exports = ApiFeatures;

@@ -1,10 +1,4 @@
-
 const ProductModel = require('../models/productModel')
-const slugify = require('slugify')
-const asyncHandler = require('express-async-handler')
-const ApiError = require('../utils/apiError')
-const CategoryModel = require('../models/categoryModel')
-const ApiFeatures = require('../utils/apiFeatures')
 const factory = require('./handlersFactory')
 
 /*
@@ -46,36 +40,9 @@ exports.getProducts = asyncHandler(async(req, res) =>{
 
 */
 
-exports.getProducts = asyncHandler(async (req, res) => {
+exports.getProducts = factory.getAll(ProductModel, 'Products')
 
-   
-    //building query
-    const documentsCount = await ProductModel.countDocuments();
-    const apiFeatures = new ApiFeatures(ProductModel.find(), req.query)
-    .filter()
-    .search('Products')
-    .limitFields()
-    .sort()
-    .pagination(documentsCount)
-  
-    const {mongooseQuery, paginateResult} = apiFeatures
-    const products = await mongooseQuery;
-
-    res.status(200).json({
-        result: products.length,
-        paginateResult,
-        data: products
-    });
-});
-
-exports.getProduct = asyncHandler(async(req, res, next) =>{
-    const product = await ProductModel.findById(req.params.id).populate({path:'category',select:'name'})    
-    if(!product){
-        //res.status(404).json({msg: 'No product for this id'})
-        return next(new ApiError(`No product for this ${req.params.id}`, 404))
-    }
-    res.status(200).json({data: product})
-})
+exports.getProduct = factory.getOne(ProductModel)
 
 exports.createProduct = factory.createOne(ProductModel)
     

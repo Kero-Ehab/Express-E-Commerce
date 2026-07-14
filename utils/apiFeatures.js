@@ -8,7 +8,7 @@ class ApiFeatures {
     filter(){
         //copy query object
         const queryStringObj = { ...this.queryString };
-        const excludesFields = ['page', 'sort', 'limit', 'fields'];
+        const excludesFields = ['page', 'sort', 'limit', 'fields', 'keyword'];
         for (let i = 0; i < excludesFields.length; i++) {
             delete queryStringObj[excludesFields[i]];
         }
@@ -68,6 +68,9 @@ class ApiFeatures {
                 query = {name: {$regex: this.queryString.keyword, $options: 'i'}}
             }
             this.mongooseQuery = this.mongooseQuery.find(query);
+
+            console.log(this.queryString.keyword);
+            console.log(query);
         }
         return this;   
     }

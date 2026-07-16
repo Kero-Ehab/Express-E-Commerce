@@ -1,7 +1,10 @@
+const path = require('path')
+
 const express = require("express");
 const dotenv = require("dotenv");
 dotenv.config({path: 'config.env'});
 const morgan = require("morgan");
+
 const dbConnection = require('./config/database');
 const categoryRoute = require('./routes/categoryRoute');
 const subCategoryRoute = require('./routes/subCategoryRoute');
@@ -20,6 +23,8 @@ const app = express();
 
 // Middlewares
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'upload')))
+
 if(process.env.NODE_ENV === 'development'){
     app.use(morgan('dev'))
     console.log(`Environment: ${process.env.NODE_ENV}`)

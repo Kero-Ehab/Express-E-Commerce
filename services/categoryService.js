@@ -1,4 +1,5 @@
 const CategoryModel = require('../models/categoryModel')
+const ApiError = require('../utils/apiError')
 const factory = require('./handlersFactory')
 const multer = require('multer')
 const {v4: uuidv4} = require('uuid')
@@ -17,7 +18,18 @@ const multerStorage = multer.diskStorage({
     }
 })
 
-const upload = multer({storage: multerStorage})     
+const multerFilter = (req, file, cb)=>{
+    if(file.mimetype.startsWith('image/')){
+        cb(null, true)
+    }else{
+        cb(new ApiError('Only images are allowed', 400), false)
+    }
+
+}
+
+
+
+const upload = multer({storage: multerStorage, fileFilter:multerFilter })     
 
 exports.uploadCategoryImage = upload.single('image')
 
